@@ -1,0 +1,87 @@
+CREATE TABLE IF NOT EXISTS user (
+    user_id VARCHAR(50) PRIMARY KEY,
+    password VARCHAR(50) NOT NULL,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    birthday DATE NOT NULL,
+    is_host BOOLEAN NOT NULL,
+    used_to_be_host BOOLEAN DEFAULT false,
+    sin VARCHAR(50),
+    occupation VARCHAR(50),
+    country VARCHAR(50),
+    province VARCHAR(50),
+    city VARCHAR(50),
+    address VARCHAR(100),
+    suite_number VARCHAR(50),
+    postal_code VARCHAR(50),
+    credit_card_number CHAR(16),
+    credit_card_expiration_date CHAR(4),
+    credit_card_code CHAR(3)
+);
+CREATE TABLE IF NOT EXISTS listing (
+    listing_id INT AUTO_INCREMENT PRIMARY KEY,
+    host_id VARCHAR(50),
+    FOREIGN KEY (host_id) REFERENCES user(user_id)
+            ON DELETE SET NULL
+            ON UPDATE CASCADE,
+    property_type VARCHAR(50) NOT NULL,
+    country VARCHAR(50) NOT NULL,
+    province VARCHAR(50) NOT NULL,
+    city VARCHAR(50) NOT NULL,
+    address VARCHAR(100) NOT NULL,
+    suite_number VARCHAR(50),
+    postal_code VARCHAR(50) NOT NULL,
+    longitude REAL NOT NULL,
+    CHECK (longitude >= -180 AND longitude <= 180),
+    latitude REAL NOT NULL,
+    CHECK (latitude >= -90 AND latitude <= 90),
+    removed BOOLEAN DEFAULT false
+);
+CREATE TABLE IF NOT EXISTS amenity (
+    name VARCHAR(50) PRIMARY KEY,
+    type VARCHAR(50) NOT NULL
+);
+CREATE TABLE IF NOT EXISTS listing_amenity (
+    listing_id INT,
+    FOREIGN KEY (listing_id) REFERENCES listing(listing_id)
+            ON DELETE CASCADE
+            ON UPDATE CASCADE,
+    amenity VARCHAR(50),
+    FOREIGN KEY (amenity) REFERENCES amenity(name)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+CREATE TABLE IF NOT EXISTS availability (
+    listing_id INT,
+    FOREIGN KEY (listing_id) REFERENCES listing(listing_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    date DATE NOT NULL,
+    price FLOAT NOT NULL,
+    CHECK (price >= 0),
+    booked BOOLEAN DEFAULT FALSE,
+    PRIMARY KEY(listing_id, date)
+);
+CREATE TABLE IF NOT EXISTS history (
+    listing_id INT,
+    FOREIGN KEY (listing_id) REFERENCES listing(listing_id)
+            ON DELETE SET NULL
+            ON UPDATE CASCADE,
+    user_id VARCHAR(50),
+    FOREIGN KEY (user_id) REFERENCES user(user_id)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    price FLOAT NOT NULL,
+    CHECK (price >= 0),
+    fulfilled BOOLEAN DEFAULT FALSE,
+    cancelled BOOLEAN DEFAULT FALSE,
+    renter_rating INT,
+    CHECK (renter_rating >= 1 AND renter_rating <= 5),
+    host_rating INT,
+    CHECK (host_rating >= 1 AND host_rating <= 5),
+    renter_review TEXT,
+    host_review TEXT
+)
+
